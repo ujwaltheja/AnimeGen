@@ -1,4 +1,6 @@
 # CUDA 12.1 + PyTorch for Runpod GPU workers (linux/amd64)
+# Build from repo root: docker build -f runpod/Dockerfile .
+
 FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -14,7 +16,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY requirements.txt /tmp/requirements-base.txt
 COPY runpod/requirements.txt /tmp/runpod-requirements.txt
 
 RUN pip3 install --upgrade pip \
@@ -23,11 +24,6 @@ RUN pip3 install --upgrade pip \
 
 COPY config ./config
 COPY src ./src
-COPY runpod/handler.py ./handler.py
-
-# Optional: bake weights into the image (large). Uncomment and set HF_TOKEN at build time.
-# ARG HF_TOKEN
-# ENV HF_TOKEN=${HF_TOKEN}
-# RUN python3 -c "from animegen.inference import WanI2VEngine; WanI2VEngine('ti2v_5b')._load()"
+COPY handler.py ./handler.py
 
 CMD ["python3", "-u", "handler.py"]

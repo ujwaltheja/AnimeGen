@@ -1,0 +1,107 @@
+{
+  "title": "AnimeGen",
+  "description": "Open-weight image-to-video: HunyuanVideo 1.5, LTX-2.3 (video + audio), and Wan 2.2. Send a base64 image and motion prompt; receive an MP4 (with optional synced audio on LTX).",
+  "type": "serverless",
+  "category": "video",
+  "config": {
+    "runsOn": "GPU",
+    "gpuCount": 1,
+    "gpuIds": "AMPERE_48,ADA_48,AMPERE_80,AMPERE_24",
+    "containerDiskInGb": 80,
+    "allowedCudaVersions": [
+      "12.8",
+      "12.7",
+      "12.6",
+      "12.5",
+      "12.4",
+      "12.3",
+      "12.2",
+      "12.1",
+      "12.0"
+    ],
+    "presets": [
+      {
+        "name": "HunyuanVideo 1.5 (720p I2V)",
+        "defaults": {
+          "ANIMEGEN_MODEL": "hunyuan15_i2v",
+          "ANIMEGEN_LOAD_MODE": "offload"
+        }
+      },
+      {
+        "name": "LTX-2.3 + synced audio",
+        "defaults": {
+          "ANIMEGEN_MODEL": "ltx23_i2v",
+          "ANIMEGEN_LOAD_MODE": "offload"
+        }
+      },
+      {
+        "name": "LTX-2.3 distilled (fast)",
+        "defaults": {
+          "ANIMEGEN_MODEL": "ltx23_distilled",
+          "ANIMEGEN_LOAD_MODE": "offload"
+        }
+      },
+      {
+        "name": "Wan 2.2 fast (24GB)",
+        "defaults": {
+          "ANIMEGEN_MODEL": "ti2v_5b",
+          "ANIMEGEN_LOAD_MODE": "gpu"
+        }
+      },
+      {
+        "name": "Wan 2.2 I2V MoE (quality)",
+        "defaults": {
+          "ANIMEGEN_MODEL": "i2v_a14b",
+          "ANIMEGEN_LOAD_MODE": "offload"
+        }
+      }
+    ],
+    "env": [
+      {
+        "key": "HF_HOME",
+        "value": "/runpod-volume/huggingface"
+      },
+      {
+        "key": "HF_TOKEN",
+        "input": {
+          "type": "huggingface",
+          "name": "Hugging Face token",
+          "description": "Token for faster model downloads (recommended). Create at huggingface.co/settings/tokens.",
+          "default": "",
+          "required": false
+        }
+      },
+      {
+        "key": "ANIMEGEN_MODEL",
+        "input": {
+          "name": "Model profile",
+          "type": "string",
+          "description": "Which I2V checkpoint to load (see config/models.yaml in the repo).",
+          "options": [
+            { "label": "HunyuanVideo 1.5 720p I2V", "value": "hunyuan15_i2v" },
+            { "label": "LTX-2.3 (video + audio)", "value": "ltx23_i2v" },
+            { "label": "LTX-2.3 distilled", "value": "ltx23_distilled" },
+            { "label": "HunyuanVideo I2V (legacy)", "value": "hunyuan_i2v" },
+            { "label": "Wan 2.2 I2V A14B", "value": "i2v_a14b" },
+            { "label": "Wan 2.2 TI2V 5B (24GB)", "value": "ti2v_5b" }
+          ],
+          "default": "hunyuan15_i2v"
+        }
+      },
+      {
+        "key": "ANIMEGEN_LOAD_MODE",
+        "input": {
+          "name": "GPU memory mode",
+          "type": "string",
+          "description": "Use offload on 40–48GB GPUs; use gpu on 80GB cards for lower latency.",
+          "options": [
+            { "label": "CPU offload (48GB-friendly)", "value": "offload" },
+            { "label": "Full GPU (80GB+)", "value": "gpu" }
+          ],
+          "default": "offload",
+          "advanced": true
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "tests": [
+    {
+      "name": "validation_missing_image",
+      "input": {
+        "prompt": "Subtle motion test"
+      },
+      "timeout": 60000
+    },
+    {
+      "name": "smoke_wan_ti2v_5b",
+      "input": {
+        "image_base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+        "prompt": "Gentle ambient motion, soft light, minimal camera movement",
+        "model": "ti2v_5b",
+        "num_frames": 17,
+        "num_inference_steps": 10,
+        "width": 512,
+        "height": 288
+      },
+      "timeout": 900000
+    }
+  ],
+  "config": {
+    "gpuTypeId": "NVIDIA GeForce RTX 4090",
+    "gpuCount": 1,
+    "env": [
+      {
+        "key": "ANIMEGEN_MODEL",
+        "value": "ti2v_5b"
+      },
+      {
+        "key": "ANIMEGEN_LOAD_MODE",
+        "value": "gpu"
+      },
+      {
+        "key": "HF_HOME",
+        "value": "/runpod-volume/huggingface"
+      }
+    ],
+    "allowedCudaVersions": [
+      "12.7",
+      "12.6",
+      "12.5",
+      "12.4",
+      "12.3",
+      "12.2",
+      "12.1",
+      "12.0"
+    ]
+  }
+}

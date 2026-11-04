@@ -1,5 +1,7 @@
 # AnimeGen
 
+[![Runpod](https://api.runpod.io/badge/ujwaltheja/AnimeGen)](https://console.runpod.io/hub/listing/ujwaltheja/AnimeGen)
+
 Open-weight **image-to-video** on GPU — **HunyuanVideo 1.5**, **LTX-2.3 (video + audio)**, and **Wan 2.2** — locally or on **[Runpod](https://www.runpod.io)** Serverless.
 
 ## Model profiles
@@ -48,10 +50,18 @@ python scripts/animate.py photo.png "anime idle motion" --model i2v_a14b -o outp
 
 **Memory:** `ANIMEGEN_LOAD_MODE=offload` (default for large profiles) or `gpu` on 80 GB cards.
 
-## Runpod Serverless
+## Runpod Hub
+
+This repo is configured for the [Runpod Hub](https://console.runpod.io/hub) (`/.runpod/hub.json`, `/.runpod/tests.json`, root `Dockerfile`, `handler.py`). Create a **GitHub release** to trigger Hub build and review.
+
+Deploy from GitHub:
+
+[![Runpod](https://api.runpod.io/badge/ujwaltheja/AnimeGen)](https://console.runpod.io/hub/listing/ujwaltheja/AnimeGen)
+
+### Serverless request (API)
 
 ```bash
-docker build --platform linux/amd64 -f runpod/Dockerfile -t YOUR_USER/animegen-i2v .
+docker build --platform linux/amd64 -t YOUR_USER/animegen-i2v .
 docker push YOUR_USER/animegen-i2v:latest
 ```
 
