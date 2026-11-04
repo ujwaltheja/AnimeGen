@@ -58,7 +58,9 @@ Deploy from GitHub:
 
 [![Runpod](https://api.runpod.io/badge/ujwaltheja/AnimeGen)](https://console.runpod.io/hub/listing/ujwaltheja/AnimeGen)
 
-**Hub build passed but tests failed with “no instances available”?** That is Runpod GPU capacity, not your Docker image. Cut a **new release** to retry the scheduler, or edit `.runpod/tests.json` `gpuTypeId` (e.g. `NVIDIA RTX A5000`, `NVIDIA L4`, `NVIDIA A40`). To skip GPU validation temporarily, rename `.runpod/tests.json` → `.runpod/tests_.json` and release again.
+**Hub build passed but tests failed with “no instances available”?** That is Runpod GPU capacity on the **validator test pod** (Hub always uses a short-lived Pod for CI, not your Serverless endpoint). Cut a **new release** to retry, or change `.runpod/tests.json` `gpuTypeId` (current default: **`NVIDIA A40`** — datacenter 48GB pool). To skip GPU validation temporarily, rename `.runpod/tests.json` → `.runpod/tests_.json`.
+
+**Deploy as GPU Pod (recommended):** Hub listing uses `"endpointType": "LB"` — open your listing → **Deploy → Pod → Deploy Pod** (not “Create Endpoint” for Serverless). Attach a network volume at `/runpod-volume`. Call the handler at the Pod proxy URL (`…proxy.runpod.net/v2/LOCAL/run`) with your Runpod API key.
 
 ### Serverless request (API)
 

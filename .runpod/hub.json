@@ -1,12 +1,13 @@
 {
   "title": "AnimeGen",
-  "description": "Open-weight image-to-video: HunyuanVideo 1.5, LTX-2.3 (video + audio), and Wan 2.2. Send a base64 image and motion prompt; receive an MP4 (with optional synced audio on LTX).",
+  "description": "Open-weight image-to-video (HunyuanVideo 1.5, LTX-2.3 + audio, Wan 2.2). Deploy as a GPU Pod for interactive use, or as Serverless for API scaling. Pod: Hub → Deploy → Pod. API: POST image_base64 + prompt → MP4.",
   "type": "serverless",
   "category": "video",
   "config": {
     "runsOn": "GPU",
+    "endpointType": "LB",
     "gpuCount": 1,
-    "gpuIds": "AMPERE_48,ADA_48,AMPERE_80,AMPERE_24",
+    "gpuIds": "AMPERE_48,AMPERE_24,ADA_24,AMPERE_80,ADA_48_PRO,AMPERE_16",
     "containerDiskInGb": 100,
     "allowedCudaVersions": [
       "12.8",
@@ -17,20 +18,35 @@
       "12.3",
       "12.2",
       "12.1",
-      "12.0"
+      "12.0",
+      "11.8"
     ],
     "presets": [
       {
-        "name": "HunyuanVideo 1.5 (720p I2V)",
+        "name": "GPU Pod — Wan 2.2 fast (24GB)",
+        "defaults": {
+          "ANIMEGEN_MODEL": "ti2v_5b",
+          "ANIMEGEN_LOAD_MODE": "gpu"
+        }
+      },
+      {
+        "name": "GPU Pod — HunyuanVideo 1.5 (720p)",
         "defaults": {
           "ANIMEGEN_MODEL": "hunyuan15_i2v",
           "ANIMEGEN_LOAD_MODE": "offload"
         }
       },
       {
-        "name": "LTX-2.3 + synced audio",
+        "name": "GPU Pod — LTX-2.3 + audio (48GB+)",
         "defaults": {
           "ANIMEGEN_MODEL": "ltx23_i2v",
+          "ANIMEGEN_LOAD_MODE": "offload"
+        }
+      },
+      {
+        "name": "Wan 2.2 I2V MoE (quality)",
+        "defaults": {
+          "ANIMEGEN_MODEL": "i2v_a14b",
           "ANIMEGEN_LOAD_MODE": "offload"
         }
       },
@@ -38,20 +54,6 @@
         "name": "LTX-2.3 distilled (fast)",
         "defaults": {
           "ANIMEGEN_MODEL": "ltx23_distilled",
-          "ANIMEGEN_LOAD_MODE": "offload"
-        }
-      },
-      {
-        "name": "Wan 2.2 fast (24GB)",
-        "defaults": {
-          "ANIMEGEN_MODEL": "ti2v_5b",
-          "ANIMEGEN_LOAD_MODE": "gpu"
-        }
-      },
-      {
-        "name": "Wan 2.2 I2V MoE (quality)",
-        "defaults": {
-          "ANIMEGEN_MODEL": "i2v_a14b",
           "ANIMEGEN_LOAD_MODE": "offload"
         }
       }
@@ -78,14 +80,14 @@
           "type": "string",
           "description": "Which I2V checkpoint to load (see config/models.yaml in the repo).",
           "options": [
+            { "label": "Wan 2.2 TI2V 5B (24GB Pod)", "value": "ti2v_5b" },
             { "label": "HunyuanVideo 1.5 720p I2V", "value": "hunyuan15_i2v" },
             { "label": "LTX-2.3 (video + audio)", "value": "ltx23_i2v" },
             { "label": "LTX-2.3 distilled", "value": "ltx23_distilled" },
             { "label": "HunyuanVideo I2V (legacy)", "value": "hunyuan_i2v" },
-            { "label": "Wan 2.2 I2V A14B", "value": "i2v_a14b" },
-            { "label": "Wan 2.2 TI2V 5B (24GB)", "value": "ti2v_5b" }
+            { "label": "Wan 2.2 I2V A14B", "value": "i2v_a14b" }
           ],
-          "default": "hunyuan15_i2v"
+          "default": "ti2v_5b"
         }
       },
       {
@@ -98,7 +100,7 @@
             { "label": "CPU offload (48GB-friendly)", "value": "offload" },
             { "label": "Full GPU (80GB+)", "value": "gpu" }
           ],
-          "default": "offload",
+          "default": "gpu",
           "advanced": true
         }
       }
