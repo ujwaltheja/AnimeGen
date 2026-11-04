@@ -58,6 +58,8 @@ Deploy from GitHub:
 
 [![Runpod](https://api.runpod.io/badge/ujwaltheja/AnimeGen)](https://console.runpod.io/hub/listing/ujwaltheja/AnimeGen)
 
+**Hub build passed but tests failed with “no instances available”?** That is Runpod GPU capacity, not your Docker image. Cut a **new release** to retry the scheduler, or edit `.runpod/tests.json` `gpuTypeId` (e.g. `NVIDIA RTX A5000`, `NVIDIA L4`, `NVIDIA A40`). To skip GPU validation temporarily, rename `.runpod/tests.json` → `.runpod/tests_.json` and release again.
+
 ### Serverless request (API)
 
 ```bash

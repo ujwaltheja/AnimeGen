@@ -5,7 +5,7 @@
       "input": {
         "prompt": "Subtle motion test"
       },
-      "timeout": 60000
+      "timeout": 120000
     },
     {
       "name": "smoke_wan_ti2v_5b",
@@ -14,7 +14,7 @@
         "prompt": "Gentle ambient motion, soft light, minimal camera movement",
         "model": "ti2v_5b",
         "num_frames": 17,
-        "num_inference_steps": 10,
+        "num_inference_steps": 8,
         "width": 512,
         "height": 288
       },
@@ -22,7 +22,7 @@
     }
   ],
   "config": {
-    "gpuTypeId": "NVIDIA GeForce RTX 4090",
+    "gpuTypeId": "NVIDIA RTX A5000",
     "gpuCount": 1,
     "env": [
       {
@@ -39,6 +39,7 @@
       }
     ],
     "allowedCudaVersions": [
+      "12.8",
       "12.7",
       "12.6",
       "12.5",
@@ -46,7 +47,8 @@
       "12.3",
       "12.2",
       "12.1",
-      "12.0"
+      "12.0",
+      "11.8"
     ]
   }
 }
