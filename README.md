@@ -52,7 +52,7 @@ python scripts/animate.py photo.png "anime idle motion" --model i2v_a14b -o outp
 
 ## Runpod Hub
 
-This repo is configured for the [Runpod Hub](https://console.runpod.io/hub) (`/.runpod/hub.json`, `/.runpod/tests.json`, root `Dockerfile`, `handler.py`). Create a **GitHub release** to trigger Hub build and review.
+This repo is configured for the [Runpod Hub](https://console.runpod.io/hub) (`.runpod/hub.json`, `.runpod/tests.json`, `.runpod/handler.py`, `.runpod/Dockerfile`). Create a **new GitHub release** after each Hub-related change — the Hub indexes **releases**, not commits.
 
 Deploy from GitHub:
 
