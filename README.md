@@ -58,9 +58,20 @@ Deploy from GitHub:
 
 [![Runpod](https://api.runpod.io/badge/ujwaltheja/AnimeGen)](https://console.runpod.io/hub/listing/ujwaltheja/AnimeGen)
 
-**Hub build passed but tests failed with “no instances available”?** That is Runpod GPU capacity on the **validator test pod** (Hub always uses a short-lived Pod for CI, not your Serverless endpoint). Cut a **new release** to retry, or change `.runpod/tests.json` `gpuTypeId` (current default: **`NVIDIA A40`** — datacenter 48GB pool). To skip GPU validation temporarily, rename `.runpod/tests.json` → `.runpod/tests_.json`.
+**Deploy as GPU Pod (recommended):** Hub listing uses `"endpointType": "LB"` — **Deploy → Pod** (Community cloud for lowest $/hr). Attach a network volume at `/runpod-volume`. Call `https://<POD_ID>-80.proxy.runpod.net/v2/LOCAL/run` with your API key.
 
-**Deploy as GPU Pod (recommended):** Hub listing uses `"endpointType": "LB"` — open your listing → **Deploy → Pod → Deploy Pod** (not “Create Endpoint” for Serverless). Attach a network volume at `/runpod-volume`. Call the handler at the Pod proxy URL (`…proxy.runpod.net/v2/LOCAL/run`) with your Runpod API key.
+### Runpod GPU pick (Community cloud, typical)
+
+| GPU ID | VRAM | ~Community $/hr | Use with AnimeGen |
+|--------|------|-------------------|-------------------|
+| `NVIDIA RTX A5000` | 24 GB | $0.16 | **`ti2v_5b`**, `ANIMEGEN_LOAD_MODE=gpu` |
+| `NVIDIA GeForce RTX 4090` | 24 GB | $0.34 | Same as A5000 |
+| `NVIDIA L40S` | 48 GB | $0.79 | Hunyuan 1.5, LTX-2.3, Wan A14B (`offload` or `gpu`) |
+| `NVIDIA RTX PRO 6000 Blackwell Server Edition` | 96 GB | $1.69 | Any profile, `ANIMEGEN_LOAD_MODE=gpu` |
+
+Hub `gpuIds` pools: `AMPERE_24` (A5000), `ADA_24` (4090), `ADA_48_PRO` (L40S), `BLACKWELL_96` (PRO 6000).
+
+**Hub CI test GPU:** `.runpod/tests.json` uses **`NVIDIA RTX A5000`**. If the validator still reports no capacity, try `NVIDIA L40S` or `NVIDIA GeForce RTX 4090`, then cut a new release.
 
 ### Serverless request (API)
 

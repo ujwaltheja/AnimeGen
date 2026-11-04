@@ -1,13 +1,13 @@
 {
   "title": "AnimeGen",
-  "description": "Open-weight image-to-video (HunyuanVideo 1.5, LTX-2.3 + audio, Wan 2.2). Deploy as a GPU Pod for interactive use, or as Serverless for API scaling. Pod: Hub → Deploy → Pod. API: POST image_base64 + prompt → MP4.",
+  "description": "Image-to-video Pod (Hunyuan 1.5, LTX-2.3+audio, Wan 2.2). Hub → Deploy → Pod. Recommended GPUs: RTX A5000 or 4090 (24GB, Wan ti2v_5b), L40S (48GB, Hunyuan/LTX), RTX PRO 6000 (96GB, all models full GPU).",
   "type": "serverless",
   "category": "video",
   "config": {
     "runsOn": "GPU",
     "endpointType": "LB",
     "gpuCount": 1,
-    "gpuIds": "AMPERE_48,AMPERE_24,ADA_24,AMPERE_80,ADA_48_PRO,AMPERE_16",
+    "gpuIds": "AMPERE_24,ADA_24,ADA_48_PRO,BLACKWELL_96",
     "containerDiskInGb": 100,
     "allowedCudaVersions": [
       "12.8",
@@ -23,37 +23,37 @@
     ],
     "presets": [
       {
-        "name": "GPU Pod — Wan 2.2 fast (24GB)",
+        "name": "RTX A5000 / 4090 — Wan 2.2 (24GB, ~$0.16–0.34/hr community)",
         "defaults": {
           "ANIMEGEN_MODEL": "ti2v_5b",
           "ANIMEGEN_LOAD_MODE": "gpu"
         }
       },
       {
-        "name": "GPU Pod — HunyuanVideo 1.5 (720p)",
+        "name": "NVIDIA L40S — Hunyuan 1.5 (48GB, ~$0.79/hr community)",
         "defaults": {
           "ANIMEGEN_MODEL": "hunyuan15_i2v",
           "ANIMEGEN_LOAD_MODE": "offload"
         }
       },
       {
-        "name": "GPU Pod — LTX-2.3 + audio (48GB+)",
+        "name": "NVIDIA L40S — LTX-2.3 + audio (48GB)",
         "defaults": {
           "ANIMEGEN_MODEL": "ltx23_i2v",
           "ANIMEGEN_LOAD_MODE": "offload"
         }
       },
       {
-        "name": "Wan 2.2 I2V MoE (quality)",
+        "name": "RTX PRO 6000 — all models full GPU (96GB)",
         "defaults": {
-          "ANIMEGEN_MODEL": "i2v_a14b",
-          "ANIMEGEN_LOAD_MODE": "offload"
+          "ANIMEGEN_MODEL": "hunyuan15_i2v",
+          "ANIMEGEN_LOAD_MODE": "gpu"
         }
       },
       {
-        "name": "LTX-2.3 distilled (fast)",
+        "name": "L40S — Wan 2.2 I2V MoE quality",
         "defaults": {
-          "ANIMEGEN_MODEL": "ltx23_distilled",
+          "ANIMEGEN_MODEL": "i2v_a14b",
           "ANIMEGEN_LOAD_MODE": "offload"
         }
       }
@@ -78,14 +78,14 @@
         "input": {
           "name": "Model profile",
           "type": "string",
-          "description": "Which I2V checkpoint to load (see config/models.yaml in the repo).",
+          "description": "Match GPU VRAM: ti2v_5b=24GB; hunyuan15/ltx23/i2v_a14b=48GB+ (offload ok on L40S); PRO 6000=any with gpu mode.",
           "options": [
-            { "label": "Wan 2.2 TI2V 5B (24GB Pod)", "value": "ti2v_5b" },
-            { "label": "HunyuanVideo 1.5 720p I2V", "value": "hunyuan15_i2v" },
-            { "label": "LTX-2.3 (video + audio)", "value": "ltx23_i2v" },
-            { "label": "LTX-2.3 distilled", "value": "ltx23_distilled" },
-            { "label": "HunyuanVideo I2V (legacy)", "value": "hunyuan_i2v" },
-            { "label": "Wan 2.2 I2V A14B", "value": "i2v_a14b" }
+            { "label": "Wan 2.2 TI2V 5B (24GB — A5000/4090)", "value": "ti2v_5b" },
+            { "label": "HunyuanVideo 1.5 720p (48GB — L40S)", "value": "hunyuan15_i2v" },
+            { "label": "LTX-2.3 + audio (48GB — L40S)", "value": "ltx23_i2v" },
+            { "label": "LTX-2.3 distilled (48GB)", "value": "ltx23_distilled" },
+            { "label": "Wan 2.2 I2V A14B (48GB offload)", "value": "i2v_a14b" },
+            { "label": "HunyuanVideo I2V legacy", "value": "hunyuan_i2v" }
           ],
           "default": "ti2v_5b"
         }
@@ -95,10 +95,10 @@
         "input": {
           "name": "GPU memory mode",
           "type": "string",
-          "description": "Use offload on 40–48GB GPUs; use gpu on 80GB cards for lower latency.",
+          "description": "gpu on 24GB (A5000/4090) or 96GB (PRO 6000); offload on L40S for large models.",
           "options": [
-            { "label": "CPU offload (48GB-friendly)", "value": "offload" },
-            { "label": "Full GPU (80GB+)", "value": "gpu" }
+            { "label": "Full GPU (24GB / 96GB cards)", "value": "gpu" },
+            { "label": "CPU offload (L40S 48GB large models)", "value": "offload" }
           ],
           "default": "gpu",
           "advanced": true
