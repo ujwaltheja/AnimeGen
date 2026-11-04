@@ -7,7 +7,7 @@ name = "animegen"
 version = "0.1.0"
 description = "Open-weight image-to-video with Wan 2.2 on GPU (Runpod-ready)"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
   "accelerate>=1.2.0",
   "transformers>=4.49.0",

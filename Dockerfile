@@ -1,4 +1,4 @@
-# CUDA 12.1 + PyTorch for Runpod Serverless / Hub (linux/amd64)
+# CUDA 12.1 + Python 3.11 (diffusers main requires >=3.11)
 FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -9,19 +9,21 @@ ENV DEBIAN_FRONTEND=noninteractive \
     ANIMEGEN_LOAD_MODE=offload
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 python3-pip python3-venv git ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+    python3.11 python3.11-venv python3.11-dev \
+    git ffmpeg ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3.11 -m ensurepip --upgrade \
+    && python3.11 -m pip install --upgrade pip setuptools wheel
 
 WORKDIR /app
 
 COPY runpod/requirements.txt /tmp/runpod-requirements.txt
 
-RUN pip3 install --upgrade pip \
-    && pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu121 \
-    && pip3 install -r /tmp/runpod-requirements.txt
+RUN python3.11 -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121 \
+    && python3.11 -m pip install -r /tmp/runpod-requirements.txt
 
 COPY config ./config
 COPY src ./src
 COPY handler.py ./handler.py
 
-CMD ["python3", "-u", "handler.py"]
+CMD ["python3.11", "-u", "handler.py"]

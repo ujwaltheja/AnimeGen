@@ -7,7 +7,7 @@
     "runsOn": "GPU",
     "gpuCount": 1,
     "gpuIds": "AMPERE_48,ADA_48,AMPERE_80,AMPERE_24",
-    "containerDiskInGb": 80,
+    "containerDiskInGb": 100,
     "allowedCudaVersions": [
       "12.8",
       "12.7",
