@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "animegen"
+version = "0.1.0"
+description = "Open-weight image-to-video with Wan 2.2 on GPU (Runpod-ready)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "accelerate>=1.2.0",
+  "transformers>=4.49.0",
+  "safetensors>=0.5.0",
+  "pillow>=10.0.0",
+  "numpy>=1.26.0",
+  "imageio[ffmpeg]>=2.34.0",
+  "pyyaml>=6.0.0",
+  "huggingface-hub>=0.27.0",
+  "python-dotenv>=1.0.0",
+  "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+runpod = ["runpod>=1.7.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.local
+
+# Outputs
+outputs/
+*.mp4
+*.webm
+
+# Models (downloaded at runtime)
+models/
+.cache/
+huggingface/
+
+# IDE
+.idea/
+.vscode/
+.DS_Store

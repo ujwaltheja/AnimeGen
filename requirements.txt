@@ -1,0 +1,19 @@
+# Core inference (install PyTorch separately for your CUDA version)
+accelerate>=1.2.0
+transformers>=4.49.0
+safetensors>=0.5.0
+pillow>=10.0.0
+numpy>=1.26.0
+imageio[ffmpeg]>=2.34.0
+pyyaml>=6.0.0
+huggingface-hub>=0.27.0
+python-dotenv>=1.0.0
+
+# Wan 2.2 requires diffusers main until fully released on PyPI
+git+https://github.com/huggingface/diffusers.git
+
+# Local CLI only
+requests>=2.31.0
+
+# RunPod serverless worker (also in runpod/requirements.txt)
+runpod>=1.7.0
