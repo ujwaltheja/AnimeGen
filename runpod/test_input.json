@@ -1,7 +1,7 @@
 {
   "input": {
     "prompt": "Gentle wind moves hair and clothes; subtle camera push-in; cinematic lighting.",
-    "model": "ti2v_5b",
+    "model": "hunyuan15_i2v",
     "num_frames": 49,
     "num_inference_steps": 30,
     "image_base64": "<replace with base64-encoded test image>"

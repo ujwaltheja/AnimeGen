@@ -24,7 +24,7 @@ def main() -> None:
     parser.add_argument("-o", "--output", type=Path, default=Path("outputs/runpod.mp4"))
     parser.add_argument("--endpoint-id", default=os.environ.get("RUNPOD_ENDPOINT_ID"))
     parser.add_argument("--api-key", default=os.environ.get("RUNPOD_API_KEY"))
-    parser.add_argument("--model", default=os.environ.get("ANIMEGEN_MODEL", "ti2v_5b"))
+    parser.add_argument("--model", default=os.environ.get("ANIMEGEN_MODEL", "hunyuan15_i2v"))
     args = parser.parse_args()
 
     if not args.endpoint_id or not args.api_key:

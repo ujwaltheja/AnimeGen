@@ -5,7 +5,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     HF_HOME=/runpod-volume/huggingface \
-    ANIMEGEN_MODEL=ti2v_5b
+    ANIMEGEN_MODEL=hunyuan15_i2v \
+    ANIMEGEN_LOAD_MODE=offload
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-pip python3-venv git ffmpeg \

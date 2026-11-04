@@ -1,32 +1,123 @@
-# Open-weight image-to-video profiles (Hugging Face Diffusers)
+# Multi-engine open I2V profiles (Hugging Face Diffusers)
 #
-# ti2v_5b  — Wan 2.2 TI2V-5B: Apache 2.0, 720p, ~24GB VRAM (RTX 4090 / A5000)
-# i2v_a14b — Wan 2.2 I2V-A14B MoE: Apache 2.0, 720p, ~48GB+ VRAM (A6000 / A100 40GB)
+# Default: hunyuan15_i2v — cinematic 720p beyond Wan
+# ltx23_i2v — joint video + audio (Lightricks LTX-2.3)
+# i2v_a14b / ti2v_5b — Wan 2.2 family (Apache 2.0, fast baseline)
+
+default_profile: hunyuan15_i2v
 
 profiles:
+  hunyuan15_i2v:
+    engine: hunyuan15
+    model_id: hunyuanvideo-community/HunyuanVideo-1.5-Diffusers-720p_i2v
+    license: Tencent Hunyuan Community License
+    min_vram_gb: 40
+    recommended_vram_gb: 80
+    vae_tiling: true
+    prefer_cpu_offload: true
+    default_height: null
+    default_width: null
+    default_fps: 24
+    default_num_frames: 121
+    default_steps: 50
+    default_guidance: null
+    separate_vae: false
+    max_area: null
+    distilled: false
+
+  ltx23_i2v:
+    engine: ltx2
+    model_id: diffusers/LTX-2.3-Diffusers
+    license: LTX-2.3 License (commercial revenue threshold — read model card)
+    min_vram_gb: 48
+    recommended_vram_gb: 80
+    vae_tiling: true
+    prefer_cpu_offload: true
+    default_height: 512
+    default_width: 768
+    default_fps: 24
+    default_num_frames: 121
+    default_steps: 30
+    default_guidance: 3.0
+    separate_vae: false
+    max_area: null
+    distilled: false
+    features: [sync_audio]
+
+  ltx23_distilled:
+    engine: ltx2
+    model_id: diffusers/LTX-2.3-Distilled-Diffusers
+    license: LTX-2.3 License
+    min_vram_gb: 40
+    recommended_vram_gb: 48
+    vae_tiling: true
+    prefer_cpu_offload: true
+    default_height: 512
+    default_width: 768
+    default_fps: 24
+    default_num_frames: 121
+    default_steps: 8
+    default_guidance: 1.0
+    separate_vae: false
+    max_area: null
+    distilled: true
+    features: [sync_audio]
+
+  hunyuan_i2v:
+    engine: hunyuan
+    model_id: hunyuanvideo-community/HunyuanVideo-I2V
+    license: Tencent Hunyuan Community License
+    min_vram_gb: 24
+    recommended_vram_gb: 48
+    vae_tiling: true
+    prefer_cpu_offload: true
+    default_height: null
+    default_width: null
+    default_fps: 15
+    default_num_frames: 129
+    default_steps: 50
+    default_guidance: null
+    separate_vae: false
+    max_area: null
+    distilled: false
+
+  i2v_a14b:
+    engine: wan
+    model_id: Wan-AI/Wan2.2-I2V-A14B-Diffusers
+    pipeline: wan_image_to_video
+    license: Apache-2.0
+    min_vram_gb: 48
+    recommended_vram_gb: 80
+    separate_vae: false
+    max_area: 921600
+    default_height: null
+    default_width: null
+    default_fps: 16
+    default_num_frames: 81
+    default_steps: 40
+    default_guidance: 3.5
+    prefer_cpu_offload: true
+    vae_tiling: false
+    distilled: false
+
   ti2v_5b:
+    engine: wan
     model_id: Wan-AI/Wan2.2-TI2V-5B-Diffusers
     pipeline: wan_image_to_video
     license: Apache-2.0
     min_vram_gb: 24
+    recommended_vram_gb: 24
+    separate_vae: true
+    max_area: null
     default_height: 704
     default_width: 1280
     default_fps: 24
     default_num_frames: 81
     default_steps: 40
     default_guidance: 5.0
-
-  i2v_a14b:
-    model_id: Wan-AI/Wan2.2-I2V-A14B-Diffusers
-    pipeline: wan_image_to_video
-    license: Apache-2.0
-    min_vram_gb: 48
-    default_height: 720
-    default_width: 1280
-    default_fps: 24
-    default_num_frames: 81
-    default_steps: 40
-    default_guidance: 5.0
+    prefer_cpu_offload: false
+    vae_tiling: false
+    distilled: false
 
 default_negative_prompt: >-
   色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，

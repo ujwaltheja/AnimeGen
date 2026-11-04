@@ -1,113 +1,91 @@
 # AnimeGen
 
-Open-weight **image-to-video** animation using **[Wan 2.2](https://huggingface.co/Wan-AI)** on GPU — locally or on **[Runpod](https://www.runpod.io)** Serverless.
+Open-weight **image-to-video** on GPU — **HunyuanVideo 1.5**, **LTX-2.3 (video + audio)**, and **Wan 2.2** — locally or on **[Runpod](https://www.runpod.io)** Serverless.
 
-## Why Wan 2.2?
+## Model profiles
 
-| Profile | Hugging Face model | VRAM | License | Best for |
-|--------|---------------------|------|---------|----------|
-| **`ti2v_5b`** (default) | `Wan-AI/Wan2.2-TI2V-5B-Diffusers` | ~24 GB | Apache 2.0 | Runpod 24 GB GPUs (RTX 4090, A5000), fast iteration |
-| **`i2v_a14b`** | `Wan-AI/Wan2.2-I2V-A14B-Diffusers` | ~48 GB+ | Apache 2.0 | Highest open I2V quality on A6000 / A100 |
+Set `--model <profile>` or `ANIMEGEN_MODEL`. Defaults: **`hunyuan15_i2v`**.
 
-Other open models (CogVideoX-5B, HunyuanVideo, LTX-2.3) are listed in community roundups; Wan 2.2 is the default here because of **Apache 2.0**, strong I2V quality, Diffusers support, and official Runpod endpoint docs for Wan I2V LoRA workflows.
+| Profile | Engine | Model | VRAM (typical) | Highlights |
+|--------|--------|--------|----------------|------------|
+| **`hunyuan15_i2v`** | Hunyuan 1.5 | `hunyuanvideo-community/HunyuanVideo-1.5-Diffusers-720p_i2v` | 40 GB offload / 80 GB GPU | **Default** — cinematic 720p I2V |
+| **`ltx23_i2v`** | LTX-2.3 | `diffusers/LTX-2.3-Diffusers` | 48 GB+ | **Native synchronized audio** + video |
+| **`ltx23_distilled`** | LTX-2.3 | `diffusers/LTX-2.3-Distilled-Diffusers` | 40 GB+ | 8-step fast LTX with audio |
+| **`hunyuan_i2v`** | HunyuanVideo | `hunyuanvideo-community/HunyuanVideo-I2V` | 24–48 GB | Original 2025 I2V checkpoint |
+| **`i2v_a14b`** | Wan 2.2 MoE | `Wan-AI/Wan2.2-I2V-A14B-Diffusers` | 48 GB offload | Strong motion, Apache 2.0 |
+| **`ti2v_5b`** | Wan 2.2 | `Wan-AI/Wan2.2-TI2V-5B-Diffusers` | 24 GB | Fast previews, Apache 2.0 |
+
+Licenses differ (Tencent Hunyuan Community, LTX commercial threshold, Apache for Wan). Read each model card before production use.
 
 ## Project layout
 
 ```
-config/models.yaml     # Model profiles and defaults
-src/animegen/          # Inference engine
-scripts/animate.py     # Local GPU CLI
-runpod/                # Serverless handler + Dockerfile
+config/models.yaml       # Profiles and defaults
+src/animegen/engines/    # wan | hunyuan15 | hunyuan | ltx2
+scripts/animate.py       # Local CLI
+runpod/                  # Serverless worker + Dockerfile
 ```
 
-## Local setup (GPU)
-
-1. Create a virtualenv and install PyTorch for your CUDA version, then dependencies:
+## Local setup
 
 ```bash
 cd AnimeGen
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt
-pip install -e .  # optional; or export PYTHONPATH=src
-```
-
-2. Copy env template and set `HF_TOKEN` if needed:
-
-```bash
 cp .env.example .env
-```
-
-3. Run animation:
-
-```bash
 export PYTHONPATH=src
-python scripts/animate.py path/to/image.png "Anime character smiles and hair blows in the wind" -o outputs/out.mp4
+
+# Default Hunyuan 1.5 I2V
+python scripts/animate.py photo.png "slow zoom, wind in hair" -o outputs/out.mp4
+
+# LTX with generated audio
+python scripts/animate.py photo.png "ocean waves, ambient surf" --model ltx23_i2v -o outputs/ltx.mp4
+
+# Wan MoE (Apache 2.0)
+python scripts/animate.py photo.png "anime idle motion" --model i2v_a14b -o outputs/wan.mp4
 ```
 
-Use `--model i2v_a14b` on a 48 GB+ GPU for the MoE I2V checkpoint.
+**Memory:** `ANIMEGEN_LOAD_MODE=offload` (default for large profiles) or `gpu` on 80 GB cards.
 
 ## Runpod Serverless
 
-### Build and push worker image
-
 ```bash
-docker build --platform linux/amd64 -f runpod/Dockerfile -t YOUR_USER/animegen-wan-i2v .
-docker push YOUR_USER/animegen-wan-i2v:latest
+docker build --platform linux/amd64 -f runpod/Dockerfile -t YOUR_USER/animegen-i2v .
+docker push YOUR_USER/animegen-i2v:latest
 ```
 
-### Create endpoint
+1. **Serverless** → new endpoint → your image.
+2. **GPU:** **40 GB+** for `hunyuan15_i2v` / `ltx23_distilled`; **48–80 GB** for `ltx23_i2v`.
+3. Env: `HF_TOKEN`, `ANIMEGEN_MODEL=hunyuan15_i2v`, `ANIMEGEN_LOAD_MODE=offload`.
+4. Attach a **network volume** at `/runpod-volume` for weight cache (`HF_HOME`).
 
-1. Runpod console → **Serverless** → **New endpoint** → import your Docker image.
-2. **GPU**: 24 GB for `ti2v_5b`, **48 GB+** for `i2v_a14b`.
-3. Set env: `HF_TOKEN`, optional `ANIMEGEN_MODEL=ti2v_5b`.
-4. Attach a **network volume** (recommended) so `HF_HOME` caches weights across cold starts.
-
-### Request shape
+### Request
 
 ```json
 {
   "input": {
     "image_base64": "<base64>",
-    "prompt": "Smooth parallax, subtle motion, maintain character identity",
-    "model": "ti2v_5b",
-    "num_frames": 81,
-    "num_inference_steps": 40,
+    "prompt": "Cinematic push-in, natural motion",
+    "model": "ltx23_i2v",
+    "num_frames": 121,
     "seed": 42
   }
 }
 ```
 
-Response includes `video_base64` (MP4).
-
-### Test from your machine
+Response: `video_base64`, `has_audio` (true for LTX profiles).
 
 ```bash
-cp .env.example .env
-# RUNPOD_API_KEY=...  RUNPOD_ENDPOINT_ID=...
-python scripts/runpod_client.py input.png "your prompt" -o outputs/runpod.mp4
+python scripts/runpod_client.py input.png "prompt" --model ltx23_i2v -o outputs/runpod.mp4
 ```
-
-### Local handler test
-
-```bash
-export PYTHONPATH=src
-cd runpod && python handler.py
-```
-
-Uses `runpod/test_input.json` when run locally.
-
-## Runpod GPU Pod (interactive)
-
-For long sessions or ComfyUI, rent a **GPU Pod** (24 GB+) instead of Serverless, clone this repo, install requirements, and run `scripts/animate.py`. Same model IDs as above.
 
 ## Notes
 
-- **Diffusers**: Wan 2.2 needs recent `diffusers` from GitHub (pinned in `requirements.txt`).
-- **First run** downloads multi-GB weights from Hugging Face; use a volume on Runpod.
-- **Negative prompt** defaults match Wan’s recommended Chinese quality guardrails (see `config/models.yaml`).
+- Requires **diffusers from GitHub** (see `requirements.txt`).
+- **LTX:** width/height must be divisible by 32; frame count `8k+1`.
+- **Hunyuan 1.5:** optional Flash attention via `pip install kernels` on supported GPUs.
 
 ## License
 
-Code in this repo: MIT. Model weights follow each checkpoint’s license on Hugging Face (Wan 2.2: Apache 2.0).
+Application code: MIT. Weights: see Hugging Face model cards per profile.

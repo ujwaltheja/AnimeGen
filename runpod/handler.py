@@ -1,16 +1,14 @@
 """
-Runpod Serverless worker for AnimeGen (Wan 2.2 image-to-video).
+Runpod Serverless worker — multi-model image-to-video.
 
 Input JSON (event["input"]):
-  - image_base64 (required): PNG/JPEG as base64
-  - prompt (required): text describing motion
-  - model (optional): ti2v_5b | i2v_a14b
-  - seed, num_frames, num_inference_steps, width, height (optional)
+  - image_base64 (required)
+  - prompt (required)
+  - model (optional): profile name from config/models.yaml
 """
 
 from __future__ import annotations
 
-import base64
 import os
 import sys
 import traceback
@@ -22,15 +20,20 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE if (HERE / "src" / "animegen").exists() else HERE.parent
 sys.path.insert(0, str(ROOT / "src"))
 
+from animegen.config import load_models_config  # noqa: E402
+from animegen.engines import create_engine  # noqa: E402
 from animegen.image_utils import image_from_base64, video_to_base64  # noqa: E402
-from animegen.inference import WanI2VEngine  # noqa: E402
 
-_engines: dict[str, WanI2VEngine] = {}
+_engines: dict[str, object] = {}
 
 
-def get_engine(profile: str) -> WanI2VEngine:
+def _default_profile() -> str:
+    return load_models_config().get("default_profile", "hunyuan15_i2v")
+
+
+def get_engine(profile: str):
     if profile not in _engines:
-        _engines[profile] = WanI2VEngine(profile=profile)
+        _engines[profile] = create_engine(profile)
     return _engines[profile]
 
 
@@ -41,7 +44,7 @@ def handler(event: dict) -> dict:
     if not image_b64 or not prompt:
         return {"error": "image_base64 and prompt are required"}
 
-    profile = job_input.get("model") or os.environ.get("ANIMEGEN_MODEL", "ti2v_5b")
+    profile = job_input.get("model") or os.environ.get("ANIMEGEN_MODEL") or _default_profile()
 
     try:
         image = image_from_base64(image_b64)
@@ -64,6 +67,8 @@ def handler(event: dict) -> dict:
             "num_frames": result.num_frames,
             "fps": result.fps,
             "profile": result.profile,
+            "engine": result.engine,
+            "has_audio": result.has_audio,
         }
     except Exception as exc:
         return {"error": str(exc), "traceback": traceback.format_exc()}
