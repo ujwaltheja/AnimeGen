@@ -6,24 +6,26 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PIP_NO_CACHE_DIR=1 \
     HF_HOME=/runpod-volume/huggingface \
     ANIMEGEN_MODEL=hunyuan15_i2v \
-    ANIMEGEN_LOAD_MODE=offload
+    ANIMEGEN_LOAD_MODE=offload \
+    VIRTUAL_ENV=/opt/venv \
+    PATH="/opt/venv/bin:${PATH}"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.11 python3.11-venv python3.11-dev \
-    git ffmpeg ca-certificates \
+    git ffmpeg ca-certificates curl \
     && rm -rf /var/lib/apt/lists/* \
-    && python3.11 -m ensurepip --upgrade \
-    && python3.11 -m pip install --upgrade pip setuptools wheel
+    && python3.11 -m venv /opt/venv \
+    && pip install --upgrade pip setuptools wheel
 
 WORKDIR /app
 
 COPY runpod/requirements.txt /tmp/runpod-requirements.txt
 
-RUN python3.11 -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121 \
-    && python3.11 -m pip install -r /tmp/runpod-requirements.txt
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121 \
+    && pip install -r /tmp/runpod-requirements.txt
 
 COPY config ./config
 COPY src ./src
 COPY handler.py ./handler.py
 
-CMD ["python3.11", "-u", "handler.py"]
+CMD ["python", "-u", "handler.py"]
